@@ -6,9 +6,7 @@
 
 ### Flags
 
-`--loop` or `-l`: Normally CrowsNest would run once then exit, set this flag to loop forever
-
-`--method` or `-m`: Which method to use for checking / updating, should be `pull` or `checkpull`
+`--run-once` or `-r`: Normally CrowsNest would loop forever, set this flag to run once then exit
 
 `--config` or `-c`: Where to look for your config.yaml file (`.` and `$HOME` are automatically searched)
 
@@ -21,11 +19,12 @@ respositories:
   peicecost:
     directory: "D:\\Code\\piececost"
     remote: "https://github.com/psidex/PieceCost.git"
-    gitflags: "-m me"  # Extra flags to provide to git when pulling
+    gitflags: ["--verbose", "--autostash"]  # Extra flags to provide to git when runnning git pull
   deploy:
     directory: "D:\\Code\\deploy"
     remote: "https://github.com/SpaceXLaunchBot/deploy"
     interval: 900  # How long to wait between pulls when using --loop
+    method: "checkpull" # pull or checkpull, defaults to pull
 
 ```
 

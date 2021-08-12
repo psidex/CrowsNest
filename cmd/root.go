@@ -2,16 +2,17 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
+	"sync"
 
 	"github.com/psidex/CrowsNest/internal/config"
+	"github.com/psidex/CrowsNest/internal/git"
+	"github.com/psidex/CrowsNest/internal/watcher"
 	"github.com/spf13/cobra"
 )
 
 // Flags.
 var (
-	loop       bool
-	method     string
+	runOnce    bool
 	configPath string
 )
 
@@ -20,29 +21,31 @@ var rootCmd = &cobra.Command{
 	Short: "CrowsNest is Watchtower for Git",
 	Long:  `Watchtower for Git`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		config := config.Get(configPath)
-
-		if method != "pull" && method != "checkpull" {
-			return errors.New("method flag must be empty, pull, or checkpull")
+		if !git.BinaryExists() {
+			return errors.New("cannot find git binary")
 		}
 
-		fmt.Println(config)
+		config, err := config.Get(configPath)
+		if err != nil {
+			return err
+		}
 
-		// Steps:
-		//  - For each directory:
-		//    - Spawn a goroutine and add to pile
-		//    - Git pull (if checkpull, check remote then pull if needed)
-		//    - Check if pull changed anything
-		//  - Wait for goroutines to finish
-		//  - Sleep for interval or exit (depending on loop)
+		var wg sync.WaitGroup
+		i := 1
 
+		for repoName, repoConfig := range config.Respositories {
+			wg.Add(1)
+			go watcher.Watch(i, &wg, runOnce, repoName, repoConfig)
+			i++
+		}
+
+		wg.Wait()
 		return nil
 	},
 }
 
 func init() {
-	rootCmd.PersistentFlags().BoolVarP(&loop, "loop", "l", false, "normally CrowsNest would run once then exit, set this flag to loop forever")
-	rootCmd.PersistentFlags().StringVarP(&method, "method", "m", "pull", "which method to use for checking / updating, should be pull or checkpull")
+	rootCmd.PersistentFlags().BoolVarP(&runOnce, "run-once", "r", false, "normally CrowsNest would loop forever, set this flag to run once then exit")
 	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", ".", "where to look for your config.yaml file (. and $HOME are automatically searched)")
 }
 
