@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+// TODO: Remove method, have checkCmd instead which if return code is non-zero we dont pull, otherwise we pull
+
 type RepositoryConfig struct {
 	Directory string `validate:"required,dir"`
 	Remote    string `validate:"required"` // TODO: Can we find this in dir/.git?

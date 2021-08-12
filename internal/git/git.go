@@ -2,10 +2,13 @@ package git
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"os"
 	"os/exec"
 )
+
+// TODO: What to do about priv / auth required?
 
 func BinaryExists() bool {
 	_, err := exec.LookPath("git")
@@ -38,6 +41,9 @@ func Pull(dir string, toStdout bool, flags []string) (string, error) {
 	}
 
 	if err := cmd.Wait(); err != nil {
+		if cmd.ProcessState.ExitCode() == 129 {
+			return "", errors.New("invalid flags for git pull")
+		}
 		return "", err
 	}
 

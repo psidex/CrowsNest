@@ -45,6 +45,8 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
+	// TODO: What options does watchtower have that we might need?
+	// TODO: Maybe allow notification of new pull thru messenger services or something.
 	rootCmd.PersistentFlags().BoolVarP(&runOnce, "run-once", "r", false, "normally CrowsNest would loop forever, set this flag to run once then exit")
 	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", ".", "where to look for your config.yaml file (. and $HOME are automatically searched)")
 }
