@@ -9,7 +9,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-// TODO: Remove method, have checkCmd instead which if return code is non-zero we dont pull, otherwise we pull
+// TODO: Remove method config, add these (maybe pick better names):
+//		- checkCmd which if return code is non-zero we dont pull, otherwise we pull
+//		- prePullCmd which runs before pull
+//		- postPullCmd which runs after pull
 
 type RepositoryConfig struct {
 	Directory string `validate:"required,dir"`
