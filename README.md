@@ -23,7 +23,7 @@ respositories:
   deploy:
     directory: "D:\\Code\\deploy"
     remote: "https://github.com/SpaceXLaunchBot/deploy"
-    interval: 900  # How long to wait between pulls when using --loop
+    interval: 900  # How long to wait between checks and/or pulls
     method: "checkpull" # pull or checkpull, defaults to pull
 
 ```
