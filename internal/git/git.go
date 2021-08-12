@@ -1,11 +1,10 @@
 package git
 
 import (
-	"bytes"
-	"errors"
-	"io"
-	"os"
+	"fmt"
 	"os/exec"
+
+	"github.com/psidex/CrowsNest/internal/cli"
 )
 
 // TODO: What to do about priv / auth required?
@@ -16,36 +15,11 @@ func BinaryExists() bool {
 }
 
 // Pull runs `git pull` in the given directory, pass "" for current working dir.
-func Pull(dir string, toStdout bool, flags []string) (string, error) {
+func Pull(flags []string, dir string) (string, error) {
 	flags = append([]string{"pull"}, flags...)
-	cmd := exec.Command("git", flags...)
-
-	var stdBuffer bytes.Buffer
-	var writer io.Writer
-
-	if toStdout {
-		writer = io.MultiWriter(os.Stdout, &stdBuffer)
-	} else {
-		writer = &stdBuffer
+	output, exitcode, err := cli.RunCmd("git", flags, dir)
+	if exitcode != 0 {
+		return output, fmt.Errorf("git exited with a non-zero exit code: %d", exitcode)
 	}
-
-	cmd.Stdout = writer
-	cmd.Stderr = writer
-
-	if dir != "" {
-		cmd.Dir = dir
-	}
-
-	if err := cmd.Start(); err != nil {
-		return "", err
-	}
-
-	if err := cmd.Wait(); err != nil {
-		if cmd.ProcessState.ExitCode() == 129 {
-			return "", errors.New("invalid flags for git pull")
-		}
-		return "", err
-	}
-
-	return stdBuffer.String(), nil
+	return output, err
 }

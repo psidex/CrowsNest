@@ -9,21 +9,23 @@ import (
 	"github.com/spf13/viper"
 )
 
-// TODO: Remove method config, add these (maybe pick better names):
-//		- checkCmd which if return code is non-zero we dont pull, otherwise we pull
-//		- prePullCmd which runs before pull
-//		- postPullCmd which runs after pull
+type CliBinOpts struct {
+	BinaryPath string `validate:"omitempty,file"`
+	Flags      []string
+	// NOTE: It seems it's not possible to validate as dir when using required_with.
+	WorkingDirectory string `validate:"required_with=BinaryPath"`
+}
 
 type RepositoryConfig struct {
-	Directory string `validate:"required,dir"`
-	Remote    string `validate:"required"` // TODO: Can we find this in dir/.git?
-	GitFlags  []string
-	Interval  int `validate:"gt=0"`
-	Method    string
+	Directory    string `validate:"required,dir"`
+	GitPullFlags []string
+	Interval     int `validate:"gt=0"`
+	PrePullCmd   CliBinOpts
+	PostPullCmd  CliBinOpts
 }
 
 type Config struct {
-	Respositories map[string]*RepositoryConfig
+	Repositories map[string]*RepositoryConfig
 }
 
 func Get(path string) (Config, error) {
@@ -43,21 +45,15 @@ func Get(path string) (Config, error) {
 	var c Config
 
 	if err := viper.Unmarshal(&c); err != nil {
-		return Config{}, fmt.Errorf("unable to decode into struct: %w", err)
+		return Config{}, fmt.Errorf("unable to decode config into struct: %w", err)
 	}
 
-	if len(c.Respositories) == 0 {
+	if len(c.Repositories) == 0 {
 		return Config{}, errors.New("no repositoires found")
 	}
 
 	validate := validator.New()
-	for cfgName, cfg := range c.Respositories {
-		if cfg.Method == "" {
-			cfg.Method = "pull"
-		} else if cfg.Method != "pull" && cfg.Method != "checkpull" {
-			return Config{}, errors.New("invalid configuration for key \"method\"")
-		}
-
+	for cfgName, cfg := range c.Repositories {
 		if cfg.Interval == 0 {
 			cfg.Interval = 60
 		}
@@ -67,9 +63,9 @@ func Get(path string) (Config, error) {
 		if err != nil {
 			for _, err := range err.(validator.ValidationErrors) {
 				return Config{}, fmt.Errorf(
-					"invalid configuration for respositories.%s.%s",
+					"invalid configuration for %s: %s",
 					cfgName,
-					strings.ToLower(err.Field()),
+					strings.ToLower(err.Namespace()),
 				)
 			}
 		}

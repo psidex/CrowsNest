@@ -10,11 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Flags.
-var (
-	runOnce    bool
-	configPath string
-)
+var cnFlags config.Flags
 
 var rootCmd = &cobra.Command{
 	Use:   "crowsnest",
@@ -25,7 +21,7 @@ var rootCmd = &cobra.Command{
 			return errors.New("cannot find git binary")
 		}
 
-		config, err := config.Get(configPath)
+		config, err := config.Get(cnFlags.ConfigPath)
 		if err != nil {
 			return err
 		}
@@ -33,9 +29,9 @@ var rootCmd = &cobra.Command{
 		var wg sync.WaitGroup
 		i := 1
 
-		for repoName, repoConfig := range config.Respositories {
+		for repoName, repoConfig := range config.Repositories {
 			wg.Add(1)
-			go watcher.Watch(i, &wg, runOnce, repoName, repoConfig)
+			go watcher.Watch(i, &wg, cnFlags, repoName, repoConfig)
 			i++
 		}
 
@@ -47,8 +43,9 @@ var rootCmd = &cobra.Command{
 func init() {
 	// TODO: What options does watchtower have that we might need?
 	// TODO: Maybe allow notification of new pull thru messenger services or something.
-	rootCmd.PersistentFlags().BoolVarP(&runOnce, "run-once", "r", false, "normally CrowsNest would loop forever, set this flag to run once then exit")
-	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", ".", "where to look for your config.yaml file (. and $HOME are automatically searched)")
+	rootCmd.PersistentFlags().BoolVarP(&cnFlags.RunOnce, "run-once", "r", false, "normally CrowsNest would loop forever, set this flag to run once then exit")
+	rootCmd.PersistentFlags().StringVarP(&cnFlags.ConfigPath, "config", "c", ".", "where to look for your config.yaml file (. and $HOME are automatically searched)")
+	rootCmd.PersistentFlags().BoolVar(&cnFlags.Verbose, "verbose", false, "write a lot more info to the log, useful for finding errors")
 }
 
 func Execute() {

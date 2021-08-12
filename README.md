@@ -1,6 +1,11 @@
 # CrowsNest
 
-[Watchtower](https://github.com/containrrr/watchtower) for Git
+[![Build status](https://github.com/psidex/crowsnest/workflows/CI/badge.svg)](https://github.com/psidex/crowsnest/actions)
+![Docker Pulls](https://img.shields.io/docker/pulls/psidex/crowsnest)
+[![Go Report Card](https://goreportcard.com/badge/github.com/psidex/crowsnest)](https://goreportcard.com/report/github.com/psidex/crowsnest)
+[![buymeacoffee donate link](https://img.shields.io/badge/Donate-Beer-FFDD00.svg?style=flat&colorA=35383d)](https://www.buymeacoffee.com/psidex)
+
+[Watchtower](https://github.com/containrrr/watchtower) for Git: automatically keep local Git repositories up to date with their remotes.
 
 ## Configuration
 
@@ -10,23 +15,39 @@
 
 `--config` or `-c`: Where to look for your config.yaml file (`.` and `$HOME` are automatically searched)
 
+`--verbose`: Write a lot more info to the log, useful for finding errors
+
 ### config.yaml
 
-Example:
+Example using every possible option:
 
 ```yaml
+# The list of repositories we want to watch
 respositories:
+  # The name of this repsoitory
   peicecost:
-    directory: "D:\\Code\\piececost"
-    remote: "https://github.com/psidex/PieceCost.git"
-    gitflags: ["--verbose", "--autostash"]  # Extra flags to provide to git when runnning git pull
-  deploy:
-    directory: "D:\\Code\\deploy"
-    remote: "https://github.com/SpaceXLaunchBot/deploy"
-    interval: 900  # How long to wait between checks and/or pulls
-    method: "checkpull" # pull or checkpull, defaults to pull
-
+    # The root of the repo
+    directory: D:\Code\piececost
+    # Extra flags to provide to git when runnning git pull
+    gitpullflags: ["--verbose", "--autostash"]
+    # How long to wait between checks and/or pulls in seconds (defaults to 60)
+    interval: 900
+    # A command to run before pulling, if this returns a non-zero exit code, the pull will not happen
+    prepullcmd:
+      # The binary to execute, e.g. /bin/bash on debian for a script
+      binarypath: C:\Programs\dosomething.exe
+      # Any flags/arguments for the binary
+      flags: ["--user", "psidex"]
+      # Where to execute this binary
+      workingdirectory: D:\Code\piececost\otherdir
+    # A command to be run after pulling, same options as prepullcmd
+    postpullcmd:
+      binarypath: C:\Programs\dosomething.exe
+      flags: ["--user", "psidex"]
+      workingdirectory: D:\Code\piececost\otherdir
 ```
+
+Keep in mind that if you are running CrowsNest in a Docker container, the pre and post pull binaries will need to be exectuable inside the container.
 
 ## Build
 
