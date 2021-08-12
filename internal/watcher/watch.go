@@ -15,6 +15,7 @@ import (
 // TODO: If pull ran over the next update check, have config opt to pull immediately?
 //       E.g. interval is 1 minute but pull took 2 minutes - after this happens what do we do with the interval
 
+// Watch watches the given repo and runs the pull process on it every interval.
 func Watch(id int, wg *sync.WaitGroup, cnFlags config.Flags, repoName string, repoConfig *config.RepositoryConfig) {
 	defer wg.Done()
 

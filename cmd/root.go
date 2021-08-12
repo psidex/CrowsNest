@@ -48,6 +48,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&cnFlags.Verbose, "verbose", false, "write a lot more info to the log, useful for finding errors")
 }
 
+// Execute executes our application.
 func Execute() {
 	rootCmd.Execute()
 }

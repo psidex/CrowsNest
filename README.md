@@ -54,3 +54,9 @@ Keep in mind that if you are running CrowsNest in a Docker container, the pre an
 Requires [govvv](https://github.com/ahmetb/govvv) to build correctly.
 
 See `build.ps1` or the `Dockerfile` for build commands.
+
+## Use Cases
+
+This would be useful if you store configuration files or content in a Git repository and want to keep your local copies up to date with the most recent versions.
+
+Personally I use this to keep my website up to date as the files are published to GitHub from my development machine but need to be on my server to be servered to the internet.

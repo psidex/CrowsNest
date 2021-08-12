@@ -9,6 +9,7 @@ import (
 
 // TODO: What to do about priv / auth required?
 
+// BinaryExists determines if we can run git.
 func BinaryExists() bool {
 	_, err := exec.LookPath("git")
 	return err == nil

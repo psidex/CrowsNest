@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// CliBinOpts holds information about user provided binaries to be executed.
 type CliBinOpts struct {
 	BinaryPath string `validate:"omitempty,file"`
 	Flags      []string
@@ -16,6 +17,7 @@ type CliBinOpts struct {
 	WorkingDirectory string `validate:"required_with=BinaryPath"`
 }
 
+// RepositoryConfig holds information about a users local Git repo.
 type RepositoryConfig struct {
 	Directory    string `validate:"required,dir"`
 	GitPullFlags []string
@@ -24,10 +26,12 @@ type RepositoryConfig struct {
 	PostPullCmd  CliBinOpts
 }
 
+// Config holds crowsnest's configuration.
 type Config struct {
 	Repositories map[string]*RepositoryConfig
 }
 
+// Get get's the current Config.
 func Get(path string) (Config, error) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
