@@ -45,7 +45,7 @@ func init() {
 	// TODO: Maybe allow notification of new pull thru messenger services or something.
 	rootCmd.PersistentFlags().BoolVarP(&cnFlags.RunOnce, "run-once", "r", false, "normally CrowsNest would loop forever, set this flag to run once then exit")
 	rootCmd.PersistentFlags().StringVarP(&cnFlags.ConfigPath, "config", "c", ".", "where to look for your config.yaml file (. and $HOME are automatically searched)")
-	rootCmd.PersistentFlags().BoolVar(&cnFlags.Verbose, "verbose", false, "write a lot more info to the log, useful for finding errors")
+	rootCmd.PersistentFlags().BoolVarP(&cnFlags.Verbose, "verbose", "v", false, "write a lot more info to the log, useful for finding errors")
 }
 
 // Execute executes our application.

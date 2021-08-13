@@ -12,9 +12,6 @@ import (
 	"github.com/psidex/CrowsNest/internal/log"
 )
 
-// TODO: If pull ran over the next update check, have config opt to pull immediately?
-//       E.g. interval is 1 minute but pull took 2 minutes - after this happens what do we do with the interval
-
 // runExternal uses cli.RunCmd to run a user provided binary.
 func runExternal(logger log.WatcherLogger, cnFlags config.Flags, cmd config.CliBinOpts, name string) error {
 	if cmd.BinaryPath != "" {
@@ -43,7 +40,10 @@ func runExternal(logger log.WatcherLogger, cnFlags config.Flags, cmd config.CliB
 func Watch(id int, wg *sync.WaitGroup, cnFlags config.Flags, repoName string, repoConfig *config.RepositoryConfig) {
 	defer wg.Done()
 
-	logger := log.NewWatcher(id, repoName)
+	// NOTE: Each watcher goroutine runs its own logger with its own config, but all
+	//  instances of log.WatcherLogger are linked to one mutex for writing to stdout.
+	logger := log.NewWatcher(id, repoName, cnFlags)
+
 	firstRun := true
 	sleepTime := time.Duration(repoConfig.Interval) * time.Second
 
@@ -72,17 +72,19 @@ func Watch(id int, wg *sync.WaitGroup, cnFlags config.Flags, repoName string, re
 			continue
 		}
 
+		logger.Info("Performing git pull")
+		// TOOD: Use output to determine if a pull happened and then log it?
 		gitOutput, err := git.Pull(repoConfig.GitPullFlags, repoConfig.Directory)
-		logger.Info("git pull output: %s", gitOutput)
+		if cnFlags.Verbose {
+			logger.Info("git pull output: %s", gitOutput)
+		}
 		if err != nil {
-			logger.Info("Failed to git pull %s: %s", repoName, err)
+			logger.Info("Failed to git pull: %s", err)
 		}
 
 		err = runExternal(logger, cnFlags, repoConfig.PostPullCmd, "PostPullCmd")
 		if err != nil {
 			logger.Info("PostPullCmd error: %s", err)
 		}
-
-		// TODO: Check and log if anything changed?
 	}
 }
