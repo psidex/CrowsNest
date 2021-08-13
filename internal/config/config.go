@@ -62,10 +62,11 @@ func Get(path string) (Config, error) {
 			cfg.Interval = 60
 		}
 
-		err := validate.Struct(cfg)
+		errs := validate.Struct(cfg)
 
-		if err != nil {
-			for _, err := range err.(validator.ValidationErrors) {
+		if errs != nil {
+			// NOTE: Basically just return the first err, the user can use some trial and error if need be.
+			for _, err := range errs.(validator.ValidationErrors) {
 				return Config{}, fmt.Errorf(
 					"invalid configuration for %s: %s",
 					cfgName,
