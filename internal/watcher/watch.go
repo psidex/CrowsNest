@@ -73,7 +73,7 @@ func Watch(id int, wg *sync.WaitGroup, cnFlags config.Flags, repoName string, re
 		}
 
 		logger.Info("Performing git pull")
-		// TOOD: Use output to determine if a pull happened and then log it?
+		// TODO: Use output to determine if a pull happened and then log it?
 		gitOutput, err := git.Pull(repoConfig.GitPullFlags, repoConfig.Directory)
 		if cnFlags.Verbose {
 			logger.Info("git pull output: %s", gitOutput)
