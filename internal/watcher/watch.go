@@ -1,7 +1,7 @@
 package watcher
 
 import (
-	"log"
+	"fmt"
 	"sync"
 	"time"
 
@@ -9,26 +9,51 @@ import (
 	"github.com/psidex/CrowsNest/internal/cli"
 	"github.com/psidex/CrowsNest/internal/config"
 	"github.com/psidex/CrowsNest/internal/git"
+	"github.com/psidex/CrowsNest/internal/log"
 )
 
-// TODO: Is log safe for goroutines? Can we have diff logger for each watcher? Maybe nice 3rd party pkg?
 // TODO: If pull ran over the next update check, have config opt to pull immediately?
 //       E.g. interval is 1 minute but pull took 2 minutes - after this happens what do we do with the interval
+
+// runExternal uses cli.RunCmd to run a user provided binary.
+func runExternal(logger log.WatcherLogger, cnFlags config.Flags, cmd config.CliBinOpts, name string) error {
+	if cmd.BinaryPath != "" {
+		logger.Info("%s Running", name)
+		output, exitcode, err := cli.RunCmd(
+			cmd.BinaryPath,
+			cmd.Flags,
+			cmd.WorkingDirectory,
+		)
+		if output != "" && cnFlags.Verbose {
+			logger.Info("%s output: %s", name, output)
+		}
+		if err != nil {
+			return err
+		}
+		// TODO: Does err always prevent this from running?
+		if exitcode != 0 {
+			errStr := fmt.Sprintf("%s returned non-zero exit code: %d", name, exitcode)
+			return fmt.Errorf(errStr)
+		}
+	}
+	return nil
+}
 
 // Watch watches the given repo and runs the pull process on it every interval.
 func Watch(id int, wg *sync.WaitGroup, cnFlags config.Flags, repoName string, repoConfig *config.RepositoryConfig) {
 	defer wg.Done()
 
+	logger := log.NewWatcher(id, repoName)
 	firstRun := true
 	sleepTime := time.Duration(repoConfig.Interval) * time.Second
 
 	if !cnFlags.RunOnce {
-		log.Printf("[%d] Running watcher for %s", id, repoName)
+		logger.Info("Running watcher")
 	} else {
-		log.Printf("[%d] Running watcher once for %s", id, repoName)
+		logger.Info("Running watcher once")
 	}
 	if cnFlags.Verbose {
-		log.Printf("[%d] Loaded configuration: %s", id, spew.Sdump(repoConfig))
+		logger.Info("Loaded configuration: %s", spew.Sdump(repoConfig))
 	}
 
 	for {
@@ -41,49 +66,21 @@ func Watch(id int, wg *sync.WaitGroup, cnFlags config.Flags, repoName string, re
 			firstRun = false
 		}
 
-		// TODO: This block is repeated twice, maybe move into function.
-		if repoConfig.PrePullCmd.BinaryPath != "" {
-			log.Printf("[%d] Running PrePullCmd", id)
-			output, exitcode, err := cli.RunCmd(
-				repoConfig.PrePullCmd.BinaryPath,
-				repoConfig.PrePullCmd.Flags,
-				repoConfig.PrePullCmd.WorkingDirectory,
-			)
-			if output != "" && cnFlags.Verbose {
-				log.Printf("[%d] PrePullCmd output: %s", id, output)
-			}
-			if err != nil {
-				log.Printf("[%d] PrePullCmd err: %s", id, err)
-				continue
-			}
-			if exitcode != 0 {
-				log.Printf("[%d] PrePullCmd returned non-zero exit code: %d", id, exitcode)
-				continue
-			}
+		err := runExternal(logger, cnFlags, repoConfig.PrePullCmd, "PrePullCmd")
+		if err != nil {
+			logger.Info("PrePullCmd error: %s", err)
+			continue
 		}
 
 		gitOutput, err := git.Pull(repoConfig.GitPullFlags, repoConfig.Directory)
-		log.Printf("[%d] git pull output: %s", id, gitOutput)
+		logger.Info("git pull output: %s", gitOutput)
 		if err != nil {
-			log.Printf("[%d] Failed to git pull %s: %s", id, repoName, err)
+			logger.Info("Failed to git pull %s: %s", repoName, err)
 		}
 
-		if repoConfig.PostPullCmd.BinaryPath != "" {
-			log.Printf("[%d] Running PostPullCmd", id)
-			output, exitcode, err := cli.RunCmd(
-				repoConfig.PostPullCmd.BinaryPath,
-				repoConfig.PostPullCmd.Flags,
-				repoConfig.PostPullCmd.WorkingDirectory,
-			)
-			if output != "" && cnFlags.Verbose {
-				log.Printf("[%d] PostPullCmd output: %s", id, output)
-			}
-			if err != nil {
-				log.Printf("[%d] PostPullCmd err: %s", id, err)
-			}
-			if exitcode != 0 {
-				log.Printf("[%d] PostPullCmd returned non-zero exit code: %d", id, exitcode)
-			}
+		err = runExternal(logger, cnFlags, repoConfig.PostPullCmd, "PostPullCmd")
+		if err != nil {
+			logger.Info("PostPullCmd error: %s", err)
 		}
 
 		// TODO: Check and log if anything changed?
