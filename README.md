@@ -56,6 +56,35 @@ The only required option is the `directory` for each repo, and if you have set p
 
 Keep in mind that if you are running CrowsNest in a Docker container, all of the set directories and the pre and post pull binaries will need to be available and exectuable inside the container.
 
+## Docker
+
+If you want to try it out in Docker there are images available on [Docker Hub](https://hub.docker.com/repository/docker/psidex/crowsnest).
+
+2 builds are published, `latest` which is inline with the latest commit to this repository, and the versioned tags that are inline with the GitHub releases.
+
+### Example Docker Run
+
+The crowsnest binary exists in and is run from the `/app` directory in the container.
+
+I chose `/gitrepos/Apollo` in this example for no reason other than its short and descriptive, docker will create that directory automatically.
+
+```bash
+docker run -d --name crowsnest --restart unless-stopped \
+    -v $(pwd)/config.yaml:/app/config.yaml:ro \
+    -v /home/psidex/repos/Apollo:/gitrepos/Apollo \
+    psidex/crowsnest:latest
+```
+
+My `config.yaml`:
+
+```yaml
+repositories:
+  apollo:
+    directory: /gitrepos/Apollo
+```
+
+Notice that the directory is the path inside the container, not the external path.
+
 ## Use Cases
 
 This would be useful if you store configuration files or content in a Git repository and want to keep your local copies up to date with the most recent versions.
@@ -65,10 +94,6 @@ Personally I use this to keep my website up to date as the files are published t
 ## Bugs And Feature Requests
 
 If you find a bug or would like to request a new feature please open an [Issue](https://github.com/psidex/CrowsNest/issues/new).
-
-## Docker
-
-If you want to try it out in Docker there are images available on [Docker Hub](https://hub.docker.com/repository/docker/psidex/crowsnest).
 
 ## Development
 
