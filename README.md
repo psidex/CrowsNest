@@ -66,6 +66,10 @@ Personally I use this to keep my website up to date as the files are published t
 
 If you find a bug or would like to request a new feature please open an [Issue](https://github.com/psidex/CrowsNest/issues/new).
 
+## Docker
+
+If you want to try it out in Docker there are images available on [Docker Hub](https://hub.docker.com/repository/docker/psidex/crowsnest).
+
 ## Development
 
 Requires [govvv](https://github.com/ahmetb/govvv) to build correctly.

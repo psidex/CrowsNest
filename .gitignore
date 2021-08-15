@@ -6,6 +6,7 @@ build
 *.zip
 config.json
 config.yaml
+crowsnest-*-*
 
 ### Go ###
 # Binaries for programs and plugins
