@@ -4,8 +4,7 @@ build
 *.env
 *.syso
 *.zip
-config.json
-config.yaml
+*.yaml
 crowsnest-*-*
 
 ### Go ###

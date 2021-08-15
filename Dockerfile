@@ -14,4 +14,4 @@ RUN apk update
 RUN apk add git
 WORKDIR /app
 COPY --from=go-builder /build/crowsnest .
-ENTRYPOINT ["crowsnest"]
+ENTRYPOINT ["./crowsnest"]
