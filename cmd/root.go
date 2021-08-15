@@ -21,11 +21,13 @@ var rootCmd = &cobra.Command{
 			return errors.New("cannot find git binary")
 		}
 
-		f, err := config.ValidateFlags(cnFlags)
-		if err != nil {
+		if err := config.ValidateFlags(cnFlags); err != nil {
 			return err
 		}
-		if f != nil {
+
+		if f, err := config.SetupLog(cnFlags); err != nil {
+			return err
+		} else if f != nil {
 			defer f.Close()
 		}
 
@@ -54,7 +56,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&cnFlags.RunOnce, "run-once", "r", false, "normally CrowsNest would loop forever, set this flag to run once then exit")
 	rootCmd.PersistentFlags().StringVarP(&cnFlags.ConfigPath, "config", "c", "", "where to look for your config.yaml file (. and $HOME are automatically searched)")
 	rootCmd.PersistentFlags().BoolVarP(&cnFlags.Verbose, "verbose", "v", false, "write a lot more info to the log, useful for finding errors")
-	rootCmd.PersistentFlags().StringVarP(&cnFlags.LogPath, "logpath", "l", "", "path for log file, including file name. If you dont set this, CrowsNest will write to stdout")
+	rootCmd.PersistentFlags().StringVarP(&cnFlags.LogPath, "logpath", "l", "", "write the log to the given file instead of stdout. Should be a full path ending with the file name")
 }
 
 // Execute executes our application.

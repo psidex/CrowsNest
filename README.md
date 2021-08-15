@@ -17,6 +17,8 @@
 
 `--verbose` or `-v`: Write a lot more info to the log, useful for finding errors
 
+`--logfile` or `-l`: Write the log to the given file instead of stdout. Should be a full path ending with the file name
+
 ### config.yaml
 
 CrowsNest reads its configuration from a `config.yaml` file.

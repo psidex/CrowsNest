@@ -3,6 +3,8 @@ package config
 import (
 	"errors"
 	"fmt"
+	"log"
+	"os"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -31,7 +33,7 @@ type Config struct {
 	Repositories map[string]*RepositoryConfig
 }
 
-// Get get's the current Config.
+// Get the current Config.
 func Get(path string) (Config, error) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -61,10 +63,7 @@ func Get(path string) (Config, error) {
 		if cfg.Interval == 0 {
 			cfg.Interval = 60
 		}
-
-		errs := validate.Struct(cfg)
-
-		if errs != nil {
+		if errs := validate.Struct(cfg); errs != nil {
 			// NOTE: Basically just return the first err, the user can use some trial and error if need be.
 			for _, err := range errs.(validator.ValidationErrors) {
 				return Config{}, fmt.Errorf(
@@ -74,8 +73,21 @@ func Get(path string) (Config, error) {
 				)
 			}
 		}
-
 	}
 
 	return c, nil
+}
+
+// If user has requested changes to our log, set them, and if made, returns the file
+// pointer that the log is being written to.
+func SetupLog(f Flags) (*os.File, error) {
+	if f.LogPath != "" {
+		file, err := os.OpenFile(f.LogPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			return nil, err
+		}
+		log.SetOutput(file)
+		return file, nil
+	}
+	return nil, nil
 }

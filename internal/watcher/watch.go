@@ -15,7 +15,7 @@ import (
 // runExternal uses cli.RunCmd to run a user provided binary.
 func runExternal(logger log.WatcherLogger, cnFlags config.Flags, cmd config.CliBinOpts, name string) error {
 	if cmd.BinaryPath != "" {
-		logger.Info("%s Running", name)
+		logger.Info("%s running", name)
 		output, exitcode, err := cli.RunCmd(
 			cmd.BinaryPath,
 			cmd.Flags,
@@ -24,13 +24,12 @@ func runExternal(logger log.WatcherLogger, cnFlags config.Flags, cmd config.CliB
 		if output != "" && cnFlags.Verbose {
 			logger.Info("%s output: %s", name, output)
 		}
+		if exitcode != 0 {
+			errStr := fmt.Sprintf("returned non-zero exit code: %d", exitcode)
+			return fmt.Errorf(errStr)
+		}
 		if err != nil {
 			return err
-		}
-		// TODO: Does err always prevent this from running?
-		if exitcode != 0 {
-			errStr := fmt.Sprintf("%s returned non-zero exit code: %d", name, exitcode)
-			return fmt.Errorf(errStr)
 		}
 	}
 	return nil
@@ -41,7 +40,7 @@ func Watch(id int, wg *sync.WaitGroup, cnFlags config.Flags, repoName string, re
 	defer wg.Done()
 
 	// NOTE: Each watcher goroutine runs its own logger with its own config, but all
-	//  instances of log.WatcherLogger are linked to one mutex for writing to stdout.
+	//  instances of log.WatcherLogger are linked to one mutex for writing to stdout/file.
 	logger := log.NewWatcher(id, repoName, cnFlags)
 
 	firstRun := true
@@ -76,7 +75,7 @@ func Watch(id int, wg *sync.WaitGroup, cnFlags config.Flags, repoName string, re
 		// TODO: Use output to determine if a pull happened and then log it?
 		gitOutput, err := git.Pull(repoConfig.GitPullFlags, repoConfig.Directory)
 		if cnFlags.Verbose {
-			logger.Info("git pull output: %s", gitOutput)
+			logger.Info("Git pull output: %s", gitOutput)
 		}
 		if err != nil {
 			logger.Info("Failed to git pull: %s", err)
