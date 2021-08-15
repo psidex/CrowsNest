@@ -1,8 +1,9 @@
-name: CI
+name: MainCI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
     paths:
       - '**.go'
       - '**.json'
