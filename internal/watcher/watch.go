@@ -71,14 +71,20 @@ func Watch(id int, wg *sync.WaitGroup, cnFlags config.Flags, repoName string, re
 			continue
 		}
 
-		logger.Info("Performing git pull")
-		// TODO: Use output to determine if a pull happened and then log it?
+		if cnFlags.Verbose {
+			logger.Info("Performing git pull")
+		}
+
 		gitOutput, err := git.Pull(repoConfig.GitPullFlags, repoConfig.Directory)
 		if cnFlags.Verbose {
 			logger.Info("Git pull output: %s", gitOutput)
 		}
 		if err != nil {
 			logger.Info("Failed to git pull: %s", err)
+		}
+
+		if git.PullPulled(gitOutput) {
+			logger.Info("Git pull resulted in local change")
 		}
 
 		err = runExternal(logger, cnFlags, repoConfig.PostPullCmd, "PostPullCmd")
