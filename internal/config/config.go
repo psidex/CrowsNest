@@ -78,8 +78,8 @@ func Get(path string) (Config, error) {
 	return c, nil
 }
 
-// If user has requested changes to our log, set them, and if made, returns the file
-// pointer that the log is being written to.
+// SetupLog sets up logging according to the flags.
+// If a file is opened, returns the file pointer that the log is being written to.
 func SetupLog(f Flags) (*os.File, error) {
 	if f.LogPath != "" {
 		file, err := os.OpenFile(f.LogPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)

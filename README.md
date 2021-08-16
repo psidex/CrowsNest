@@ -3,6 +3,7 @@
 [![MainCI](https://github.com/psidex/CrowsNest/actions/workflows/mainci.yml/badge.svg)](https://github.com/psidex/CrowsNest/actions/workflows/mainci.yml)
 [![ReleaseCI](https://github.com/psidex/CrowsNest/actions/workflows/releaseci.yml/badge.svg)](https://github.com/psidex/CrowsNest/actions/workflows/releaseci.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/psidex/crowsnest)](https://hub.docker.com/repository/docker/psidex/crowsnest)
+[![Go Report Card](https://goreportcard.com/badge/github.com/psidex/CrowsNest)](https://goreportcard.com/report/github.com/psidex/CrowsNest)
 [![buymeacoffee donate link](https://img.shields.io/badge/Donate-Beer-FFDD00.svg?style=flat&colorA=35383d)](https://www.buymeacoffee.com/psidex)
 
 [Watchtower](https://github.com/containrrr/watchtower) for Git: automatically keep local Git repositories up to date with their remotes.
