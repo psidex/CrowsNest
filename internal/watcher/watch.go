@@ -21,8 +21,8 @@ func runExternal(logger log.WatcherLogger, cnFlags config.Flags, cmd config.CliB
 			cmd.Flags,
 			cmd.WorkingDirectory,
 		)
-		if output != "" && cnFlags.Verbose {
-			logger.Info("%s output: %s", name, output)
+		if output != "" {
+			logger.InfoV("%s output: %s", name, output)
 		}
 		if exitcode != 0 {
 			errStr := fmt.Sprintf("returned non-zero exit code: %d", exitcode)
@@ -51,9 +51,8 @@ func Watch(id int, wg *sync.WaitGroup, cnFlags config.Flags, repoName string, re
 	} else {
 		logger.Info("Running watcher once")
 	}
-	if cnFlags.Verbose {
-		logger.Info("Loaded configuration: %s", spew.Sdump(repoConfig))
-	}
+
+	logger.InfoV("Loaded configuration: %s", spew.Sdump(repoConfig))
 
 	for {
 		if !firstRun {
@@ -71,14 +70,10 @@ func Watch(id int, wg *sync.WaitGroup, cnFlags config.Flags, repoName string, re
 			continue
 		}
 
-		if cnFlags.Verbose {
-			logger.Info("Performing git pull")
-		}
+		logger.InfoV("Performing git pull")
 
 		gitOutput, err := git.Pull(repoConfig.GitPullFlags, repoConfig.Directory)
-		if cnFlags.Verbose {
-			logger.Info("Git pull output: %s", gitOutput)
-		}
+		logger.InfoV("Git pull output: %s", gitOutput)
 		if err != nil {
 			logger.Info("Failed to git pull: %s", err)
 		}

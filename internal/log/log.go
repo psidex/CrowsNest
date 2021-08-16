@@ -10,6 +10,7 @@ import (
 
 // WatcherLogger is for logging from within watcher.Watch goroutines.
 type WatcherLogger struct {
+	verbose   bool
 	logString string
 	mu        *sync.Mutex
 }
@@ -30,7 +31,7 @@ func NewWatcher(id int, repoName string, cnFlags config.Flags) WatcherLogger {
 	// Where msg will go.
 	out += " %s"
 
-	return WatcherLogger{out, &stdoutmu}
+	return WatcherLogger{cnFlags.Verbose, out, &stdoutmu}
 }
 
 // Info logs information.
@@ -39,4 +40,11 @@ func (l WatcherLogger) Info(msg string, args ...interface{}) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	log.Printf(l.logString, msg)
+}
+
+// InfoV logs verbose information.
+func (l WatcherLogger) InfoV(msg string, args ...interface{}) {
+	if l.verbose {
+		l.Info(msg, args...)
+	}
 }
