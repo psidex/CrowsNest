@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"log"
 	"sync"
 
 	"github.com/psidex/CrowsNest/internal/config"
@@ -17,6 +18,8 @@ var rootCmd = &cobra.Command{
 	Short: "CrowsNest is Watchtower for Git",
 	Long:  "Watchtower for Git: automatically keep local Git repositories up to date with their remotes",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		log.Println(cnMetaStringNNL)
+
 		if !git.BinaryExists() {
 			return errors.New("cannot find git binary")
 		}
