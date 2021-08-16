@@ -28,7 +28,7 @@ Example `config.yaml` using every possible option:
 
 ```yaml
 # The list of repositories we want to watch
-respositories:
+repositories:
   # The name of this repsoitory (can be anything, will show up in logs)
   peicecost:
     # The path to the root of the repo
