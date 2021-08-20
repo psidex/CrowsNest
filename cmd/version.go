@@ -11,8 +11,8 @@ import (
 // GitBranch holds the name of the current branch.
 var GitBranch string
 
-// GitSummary holds the summary of the current repo.
-var GitSummary string
+// GitCommit holds the short commit hash of the most recent commit.
+var GitCommit string
 
 // BuildDate holds the timestamp when this was built.
 var BuildDate string
@@ -21,8 +21,8 @@ var BuildDate string
 var Version string
 
 // Version/build info, NNL = No New Lines.
-var cnMetaString string = fmt.Sprintf("CrowsNest v%s\n%s on branch %s\nBuilt %s", Version, GitSummary, GitBranch, BuildDate)
-var cnMetaStringNNL string = fmt.Sprintf("CrowsNest v%s / %s on branch %s / Built %s", Version, GitSummary, GitBranch, BuildDate)
+var cnMetaString string = fmt.Sprintf("CrowsNest v%s\n%s on %s\nBuilt %s", Version, GitCommit, GitBranch, BuildDate)
+var cnMetaStringNNL string = fmt.Sprintf("CrowsNest v%s / %s on %s / Built %s", Version, GitCommit, GitBranch, BuildDate)
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
